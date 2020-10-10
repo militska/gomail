@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/smtp"
+	"os"
 )
 
 type SmtpServer struct {
