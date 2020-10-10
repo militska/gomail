@@ -1,13 +1,11 @@
 package main
 
 import (
-	"crypto/tls"
 	"log"
+	"net/smtp"
 	"os"
 
 	"github.com/joho/godotenv"
-
-	"gopkg.in/gomail.v2"
 )
 
 func main() {
@@ -16,18 +14,15 @@ func main() {
 		log.Print("No .env file found")
 	}
 
-	to := "cheshirenok@gmail.com"
+	auth := smtp.PlainAuth("", os.Getenv("EMAIL_USER"), os.Getenv("EMAIL_PASSWORD"), os.Getenv("HOST"))
 
-	d := gomail.NewDialer(os.Getenv("HOST"), 587, os.Getenv("EMAIL_USER"), os.Getenv("EMAIL_PASSWORD"))
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-
-	m := gomail.NewMessage()
-	m.SetHeader("From", "mewmew@mew.mew")
-	m.SetHeader("To", to)
-	m.SetBody("text/plain", "new text")
-
-	if err := d.DialAndSend(m); err != nil {
-		panic(err)
+	to := []string{"cheshirenok@gmail.com"}
+	msg := []byte("To: cheshirenok@gmail.com\r\n" +
+		"Subject: discount Gophers!\r\n" +
+		"\r\n" +
+		"This is the email body.\r\n")
+	err := smtp.SendMail(os.Getenv("HOST")+":587", auth, os.Getenv("EMAIL_USER")+"@gmail.com", to, msg)
+	if err != nil {
+		log.Fatal(err)
 	}
-
 }
