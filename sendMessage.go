@@ -24,8 +24,6 @@ type SendEmailVo struct {
 	Body         string
 }
 
-type AuthStr struct{}
-
 func (vo *SendEmailVo) check() error {
 	if vo.Subject == "" {
 		return errors.New("Subject is empty")
@@ -44,9 +42,6 @@ func (vo *SendEmailVo) check() error {
 }
 
 func sendMsg(data SendEmailVo) {
-	authStr := AuthStr{}
-	auth := authStr.getData()
-
 	to := data.To
 	from := data.From
 	msg := Msg{
@@ -58,7 +53,6 @@ func sendMsg(data SendEmailVo) {
 	text, _ := msg.getText()
 
 	server := SmtpServer{
-		Auth:    auth,
 		To:      to,
 		From:    from,
 		Message: text,
@@ -69,7 +63,7 @@ func sendMsg(data SendEmailVo) {
 
 func (server *SmtpServer) send() {
 	err := smtp.SendMail(os.Getenv("HOST_SMTP")+":"+os.Getenv("PORT_SMTP"),
-		server.Auth,
+		server.getAuthData(),
 		server.From,
 		server.To,
 		server.Message,
@@ -80,7 +74,7 @@ func (server *SmtpServer) send() {
 	}
 }
 
-func (a *AuthStr) getData() smtp.Auth {
+func (a *SmtpServer) getAuthData() smtp.Auth {
 	data := smtp.PlainAuth("",
 		os.Getenv("EMAIL_USER"),
 		os.Getenv("EMAIL_PASSWORD"),
