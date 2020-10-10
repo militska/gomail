@@ -15,6 +15,39 @@ type SmtpServer struct {
 	Message []byte
 }
 
+type SendEmailDTO struct {
+	From         string
+	FromExtended string
+	To           []string
+	Subject      string
+	Body         string
+}
+
+type AuthStr struct{}
+
+func sendMsg(dto SendEmailDTO) {
+	authStr := AuthStr{}
+	auth := authStr.getData()
+
+	to := dto.To
+	from := dto.From
+	msg := Msg{
+		From:    dto.FromExtended,
+		Subject: dto.Subject,
+		Body:    dto.Body,
+	}
+
+	text, _ := msg.getText()
+
+	server := SmtpServer{
+		Auth:    auth,
+		To:      to,
+		From:    from,
+		Message: text,
+	}
+	server.send()
+}
+
 func (server *SmtpServer) send() {
 	err := smtp.SendMail(os.Getenv("HOST")+":"+os.Getenv("PORT_SMTP"),
 		server.Auth,
@@ -27,8 +60,6 @@ func (server *SmtpServer) send() {
 		log.Fatal(err)
 	}
 }
-
-type AuthStr struct{}
 
 func (a *AuthStr) getData() smtp.Auth {
 	data := smtp.PlainAuth("",

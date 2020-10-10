@@ -9,6 +9,13 @@ type Msg struct {
 	Body    string
 }
 
+func (m *Msg) isFill() error {
+	if m.Body == "" {
+		return types.Error{Msg: "Body is empty"}
+	}
+	return nil
+}
+
 func (m *Msg) getText() ([]byte, error) {
 
 	if err := m.isFill(); err != nil {
@@ -22,11 +29,4 @@ func (m *Msg) getText() ([]byte, error) {
 			"\r\n" + m.Body + "\r\n")
 
 	return message, nil
-}
-
-func (m *Msg) isFill() error {
-	if m.Body == "" {
-		return types.Error{Msg: "Body is empty"}
-	}
-	return nil
 }
