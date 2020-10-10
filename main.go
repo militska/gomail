@@ -2,54 +2,66 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	"go/types"
 	"log"
 	"net/smtp"
 	"os"
 )
 
 func main() {
-
 	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
 	}
 
-	auth := smtp.PlainAuth("", os.Getenv("EMAIL_USER"), os.Getenv("EMAIL_PASSWORD"), os.Getenv("HOST"))
-
+	authStr := AuthStr{}
+	auth := authStr.getData()
 	to := []string{"cheshirenok@gmail.com"}
-	msg := Msg{From: "test change <militska.ru@gmail.com>", To: "", Subject: "test title", Body: "test body"}
+
+	msg := Msg{
+		From:    "test change <militska.ru@gmail.com>",
+		To:      "",
+		Subject: "test title 333",
+		Body:    "test body 222",
+	}
+
 	text, _ := msg.getText()
-	err := smtp.SendMail(os.Getenv("HOST")+":587", auth, os.Getenv("EMAIL_USER")+"@gmail.com", to, text)
+
+	server := SmtpServer{
+		Auth:    auth,
+		To:      to,
+		From:    os.Getenv("EMAIL_USER") + "@gmail.com",
+		Message: text,
+	}
+	server.send()
+}
+
+type SmtpServer struct {
+	Auth    smtp.Auth
+	Host    string
+	Port    int
+	To      []string
+	From    string
+	Message []byte
+}
+
+func (server *SmtpServer) send() {
+	err := smtp.SendMail(os.Getenv("HOST")+":"+os.Getenv("PORT_SMTP"),
+		server.Auth,
+		server.From,
+		server.To,
+		server.Message,
+	)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-type Msg struct {
-	To      string
-	From    string
-	Subject string
-	Body    string
-}
+type AuthStr struct{}
 
-func (m *Msg) isFill() error {
-	if m.Body == "" {
-		return types.Error{Msg: "Body is empty"}
-	}
-	return nil
-}
-
-func (m *Msg) getText() ([]byte, error) {
-
-	if err := m.isFill(); err != nil {
-		return nil, err
-	}
-
-	message := []byte(
-		"To: " + m.To + "\r\n" +
-			"From: " + m.From + "\r\n" +
-			"Subject: " + m.Subject + "\r\n" +
-			"\r\n" + m.Body + "\r\n")
-
-	return message, nil
+func (a *AuthStr) getData() smtp.Auth {
+	data := smtp.PlainAuth("",
+		os.Getenv("EMAIL_USER"),
+		os.Getenv("EMAIL_PASSWORD"),
+		os.Getenv("HOST"))
+	return data
 }
