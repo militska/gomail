@@ -18,6 +18,6 @@ func sendMailHandler() {
 			panic(err)
 		}
 
-		sendMsg(data)
+		go sendMsg(data)
 	})
 }
