@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"github.com/joho/godotenv"
+	"go/types"
 	"log"
 	"net/http"
 	"os"
@@ -15,7 +17,31 @@ func main() {
 		log.Print("No .env file found")
 	}
 
+	if errCheckEnv := checkEnvVariables(); errCheckEnv != nil {
+		log.Print(errCheckEnv.Error())
+	}
+
 	initHttpServer()
+}
+
+func checkEnvVariables() error {
+	if os.Getenv("HOST_SMTP") == "" {
+		return errors.New("HOST_SMTP is empty")
+	}
+	if os.Getenv("PORT_SMTP") == "" {
+		return errors.New("ENABLED_API is empty")
+	}
+	if os.Getenv("EMAIL_USER") == "" {
+		return errors.New("ENABLED_API is empty")
+	}
+	if os.Getenv("EMAIL_PASSWORD") == "" {
+		return errors.New("ENABLED_API is empty")
+	}
+	if os.Getenv("ENABLED_API") == "" {
+		return types.Error{Msg: "ENABLED_API is empty"}
+	}
+
+	return nil
 }
 
 func initHttpServer() {
