@@ -10,9 +10,15 @@ func sendMailHandler() {
 	http.HandleFunc("/send", func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 
+		if r.Header.Get("Content-Type") != "application/json" {
+			_, _ = w.Write([]byte("Content-Type must be application/json"))
+			w.WriteHeader(400)
+			return
+		}
+
 		if err != nil {
 			w.WriteHeader(400)
-			panic(err)
+			return
 		}
 
 		var data SendEmailVo
