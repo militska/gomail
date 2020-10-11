@@ -1,6 +1,6 @@
 package main
 
-import "go/types"
+import "errors"
 
 type Msg struct {
 	To      string
@@ -11,7 +11,10 @@ type Msg struct {
 
 func (m *Msg) check() error {
 	if m.Body == "" {
-		return types.Error{Msg: "Body is empty"}
+		return errors.New("Body is empty")
+	}
+	if m.Subject == "" {
+		return errors.New("Subject is empty")
 	}
 	return nil
 }
