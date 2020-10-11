@@ -42,8 +42,6 @@ func (vo *SendEmailVo) check() error {
 }
 
 func sendMsg(data SendEmailVo) {
-	to := data.To
-	from := data.From
 	msg := Msg{
 		From:    data.FromExtended,
 		Subject: data.Subject,
@@ -53,15 +51,10 @@ func sendMsg(data SendEmailVo) {
 	text, _ := msg.getText()
 
 	server := SmtpServer{
-		To:      to,
-		From:    from,
+		To:      data.To,
+		From:    data.From,
 		Message: text,
 	}
-
-	server.send()
-}
-
-func (server *SmtpServer) send() {
 	err := smtp.SendMail(os.Getenv("HOST_SMTP")+":"+os.Getenv("PORT_SMTP"),
 		server.getAuthData(),
 		server.From,
