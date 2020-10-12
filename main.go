@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -53,8 +54,23 @@ func initHttpServer() {
 			MaxHeaderBytes: 1 << 20,
 		}
 
-		sendMailHandler()
+		ch := make(chan SendEmailVo, 100)
+		cores := runtime.NumCPU() - 4
+
+		sendMailHandler(ch)
+
+		for i := 1; i < cores; i++ {
+			go internalSend(ch)
+		}
 
 		log.Fatal(s.ListenAndServe())
+	}
+
+}
+
+func internalSend(ch chan SendEmailVo) {
+	for {
+		data := <-ch
+		sendMsg(&data)
 	}
 }
