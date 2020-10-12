@@ -41,7 +41,7 @@ func (vo *SendEmailVo) check() error {
 	return nil
 }
 
-func sendMsg(data SendEmailVo) {
+func sendMsg(data *SendEmailVo) {
 	msg := Msg{
 		From:    data.FromExtended,
 		Subject: data.Subject,

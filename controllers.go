@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func sendMailHandler() {
+func sendMailHandler(ch chan SendEmailVo) {
 	http.HandleFunc("/send", func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 
@@ -33,7 +33,8 @@ func sendMailHandler() {
 			return
 		}
 
-		go sendMsg(data)
+		ch <- data
+		//go sendMsg(data)
 
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))

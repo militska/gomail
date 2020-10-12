@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -46,6 +47,9 @@ func checkEnvVariables() error {
 
 func initHttpServer() {
 	if os.Getenv("ENABLED_API") == ENABLED {
+
+		ch := make(chan SendEmailVo, 100)
+
 		s := &http.Server{
 			Addr:           ":8070",
 			ReadTimeout:    10 * time.Second,
@@ -53,8 +57,21 @@ func initHttpServer() {
 			MaxHeaderBytes: 1 << 20,
 		}
 
-		sendMailHandler()
+		sendMailHandler(ch)
+
+		cores := runtime.NumCPU() - 4
+		for i := 1; i < cores; i++ {
+			go internalSend(ch)
+		}
 
 		log.Fatal(s.ListenAndServe())
+	}
+
+}
+
+func internalSend(ch chan SendEmailVo) {
+	for {
+		data := <-ch
+		sendMsg(&data)
 	}
 }
