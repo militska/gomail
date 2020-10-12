@@ -34,7 +34,6 @@ func sendMailHandler(ch chan SendEmailVo) {
 		}
 
 		ch <- data
-		//go sendMsg(data)
 
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
