@@ -1,0 +1,14 @@
+version: '3.2'
+
+services:
+  app:
+    build:
+      context: ./docker/go
+    restart: on-failure
+    working_dir: /go/src/myapp
+    env_file:
+      - .env
+    ports:
+      - 8070:8070
+    volumes:
+      - .:/go/src/myapp
