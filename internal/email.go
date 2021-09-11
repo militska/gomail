@@ -2,7 +2,8 @@ package internal
 
 import (
 	"errors"
-	"log"
+	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/smtp"
 	"os"
 )
@@ -39,14 +40,19 @@ func SendMsg(data *Email) {
 		Body:    data.Body,
 	}
 
-	text, _ := msg.GetText()
+	err := msg.Check()
+	if err != nil {
+		log.Warning(err)
+		return
+	}
 
 	server := SmtpServer{
 		To:      data.To,
 		From:    data.From,
-		Message: text,
+		Message: msg.GetText(),
 	}
-	err := smtp.SendMail(os.Getenv("HOST_SMTP")+":"+os.Getenv("PORT_SMTP"),
+	err = smtp.SendMail(
+		fmt.Sprintf("%s:%s", os.Getenv("HOST_SMTP"), os.Getenv("PORT_SMTP")),
 		server.GetAuthData(),
 		server.From,
 		server.To,

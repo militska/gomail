@@ -1,6 +1,9 @@
 package internal
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 type Msg struct {
 	To      string
@@ -19,17 +22,10 @@ func (m *Msg) Check() error {
 	return nil
 }
 
-func (m *Msg) GetText() ([]byte, error) {
+func (m *Msg) GetText() []byte {
+	return []byte(
+		fmt.Sprintf(
+			`To: %s \r\n From: %s \r\n Subject: %s \r\n \r\n %s \r\n`,
+			m.To, m.From, m.Subject, m.Body))
 
-	if err := m.Check(); err != nil {
-		return nil, err
-	}
-
-	message := []byte(
-		"To: " + m.To + "\r\n" +
-			"From: " + m.From + "\r\n" +
-			"Subject: " + m.Subject + "\r\n" +
-			"\r\n" + m.Body + "\r\n")
-
-	return message, nil
 }
