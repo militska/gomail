@@ -1,4 +1,4 @@
-package main
+package internal
 
 import "errors"
 
@@ -9,7 +9,7 @@ type Msg struct {
 	Body    string
 }
 
-func (m *Msg) check() error {
+func (m *Msg) Check() error {
 	if m.Body == "" {
 		return errors.New("Body is empty")
 	}
@@ -19,9 +19,9 @@ func (m *Msg) check() error {
 	return nil
 }
 
-func (m *Msg) getText() ([]byte, error) {
+func (m *Msg) GetText() ([]byte, error) {
 
-	if err := m.check(); err != nil {
+	if err := m.Check(); err != nil {
 		return nil, err
 	}
 
