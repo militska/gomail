@@ -1,22 +1,14 @@
-package main
+package internal
 
 import (
 	"errors"
-	"log"
+	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/smtp"
 	"os"
 )
 
-type SmtpServer struct {
-	Auth    smtp.Auth
-	Host    string
-	Port    int
-	To      []string
-	From    string
-	Message []byte
-}
-
-type SendEmailVo struct {
+type Email struct {
 	From         string
 	FromExtended string
 	To           []string
@@ -24,7 +16,7 @@ type SendEmailVo struct {
 	Body         string
 }
 
-func (vo *SendEmailVo) check() error {
+func (vo *Email) Check() error {
 	if vo.Subject == "" {
 		return errors.New("Subject is empty")
 	}
@@ -41,22 +33,27 @@ func (vo *SendEmailVo) check() error {
 	return nil
 }
 
-func sendMsg(data *SendEmailVo) {
+func SendMsg(data *Email) {
 	msg := Msg{
 		From:    data.FromExtended,
 		Subject: data.Subject,
 		Body:    data.Body,
 	}
 
-	text, _ := msg.getText()
+	err := msg.Check()
+	if err != nil {
+		log.Warning(err)
+		return
+	}
 
 	server := SmtpServer{
 		To:      data.To,
 		From:    data.From,
-		Message: text,
+		Message: msg.GetText(),
 	}
-	err := smtp.SendMail(os.Getenv("HOST_SMTP")+":"+os.Getenv("PORT_SMTP"),
-		server.getAuthData(),
+	err = smtp.SendMail(
+		fmt.Sprintf("%s:%s", os.Getenv("HOST_SMTP"), os.Getenv("PORT_SMTP")),
+		server.GetAuthData(),
 		server.From,
 		server.To,
 		server.Message,
@@ -65,12 +62,4 @@ func sendMsg(data *SendEmailVo) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func (a *SmtpServer) getAuthData() smtp.Auth {
-	data := smtp.PlainAuth("",
-		os.Getenv("EMAIL_USER"),
-		os.Getenv("EMAIL_PASSWORD"),
-		os.Getenv("HOST_SMTP"))
-	return data
 }
