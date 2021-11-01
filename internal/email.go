@@ -46,7 +46,7 @@ func SendMsg(data *Email) {
 		return
 	}
 
-	server := SmtpServer{
+	server := SMTPServer{
 		To:      data.To,
 		From:    data.From,
 		Message: msg.GetText(),

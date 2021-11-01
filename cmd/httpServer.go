@@ -19,7 +19,7 @@ func InitHTTPServer() {
 		}
 
 		ch := make(chan internal.Email, tools.EmailSizeBuffer)
-		cnt := getMaxGoroutines()
+		cnt := runtime.NumCPU()
 
 		SendMailHandler(ch)
 
@@ -28,14 +28,6 @@ func InitHTTPServer() {
 		}
 		log.Warning(s.ListenAndServe())
 	}
-}
-
-// Определяем максимальное количество горутин, которые можно запустить
-func getMaxGoroutines() int {
-	if runtime.NumCPU() <= 4 {
-		return 1
-	}
-	return runtime.NumCPU() - 4
 }
 
 func internalSend(ch chan internal.Email) {
