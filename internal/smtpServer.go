@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-type SmtpServer struct {
+type SMTPServer struct {
 	Auth    smtp.Auth
 	Host    string
 	Port    int
@@ -14,7 +14,7 @@ type SmtpServer struct {
 	Message []byte
 }
 
-func (a *SmtpServer) GetAuthData() smtp.Auth {
+func (a *SMTPServer) GetAuthData() smtp.Auth {
 	data := smtp.PlainAuth("",
 		os.Getenv("EMAIL_USER"),
 		os.Getenv("EMAIL_PASSWORD"),
